@@ -1,0 +1,72 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: False
+
+  tasks:
+    - name: create test buckets
+      s3:
+        bucket: random-teapot-alskdjfghqpwoeiruty
+        mode: create
+        region: us-east-1
+
+    - name: create test buckets
+      s3:
+        bucket: random-teapot-risderecbebifrisderecbebifkviggan4
+        mode: create
+        region: us-east-1
+
+    - name: lifecycle create
+      s3_lifecycle:
+        bucket: random-teapot-alskdjfghqpwoeiruty
+        lifecycle:
+          - rule_id: myrule
+            expiration: 
+                days: 30
+            status: enabled
+            state: present
+
+    - name: delete test bucket
+      s3: bucket=random-teapot-alskdjfghqpwoeiruty mode=delete
+
+    - name: multi rule bucket
+      s3_lifecycle:
+        bucket: random-teapot-risderecbebifrisderecbebifkviggan4
+        lifecycle:
+          - rule_id: rule1
+            prefix: "/folder1"
+            expiration: 
+                days: 31
+            status: enabled
+            state: present
+          - rule_id: rule2
+            prefix: "/folder2"
+            expiration: 
+                days: 32
+            status: disabled
+            state: present
+          - rule_id: rule3
+            prefix: "/folder3"
+            expiration: 
+                days: 33
+            status: enabled
+            state: present
+
+    - name: disable rule
+      s3_lifecycle:
+        bucket: random-teapot-risderecbebifrisderecbebifkviggan4
+        lifecycle:
+          - rule_id: rule1
+            prefix: "/folder1"
+            expiration:
+              days: 31
+            status: disabled
+            state: present
+
+    - name: delete rule
+      s3_lifecycle:
+        bucket: random-teapot-risderecbebifrisderecbebifkviggan4
+        lifecycle:
+          - rule_id: rule3
+            status: enabled
+            state: absent
